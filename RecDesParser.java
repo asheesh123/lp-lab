@@ -1,84 +1,72 @@
 /*
-* G->E$
-* E->TK
-* K->+TK|null
-* T->FH
-* H->*FH|null
-* F->(E)|a
-* */
+	Grammar:
+	E -> x + T
+	T -> (E)
+	T -> x
+*/
+
 import java.util.*;
+
 public class RecDesParser {
-    String input="";
-    int index=-1;
-    ArrayList<String> nonTers=new ArrayList<>();
-    ArrayList<String> terms=new ArrayList<>();
-    Stack<String> stack=new Stack<>();
-    String table[][]={{"E$",null,null,"E$",null,null},
-                    {"TK",null,null,"TK",null,""},
-                    {null,"+TK",null,null,"",""},
-                    {"FH",null,null,"FH",null,null},
-                    {null,"","*FH",null,"",""},
-                    {"a",null,null,"(E)",null,null}};
-    public RecDesParser(String str){
-        nonTers.add("G");nonTers.add("E");nonTers.add("K");nonTers.add("T");nonTers.add("H");nonTers.add("F");
-        terms.add("a");terms.add("+");terms.add("*");terms.add("(");terms.add(")");terms.add("$");
-        this.input=str;
-    }
-    public void pushRule(String rule){
-        for(int i=rule.length()-1;i>=0;i--){
-            stack.push(rule.charAt(i)+"");
+    static int ptr;
+    static char[] input;
+
+    public static void main(String args[]) {
+    	String sample="x+(x+x)";
+        System.out.println("Enter the input string:");
+        @SuppressWarnings("resource")
+		String s = new Scanner(System.in).nextLine();
+        input = s.toCharArray();
+        if(input.length < 2) {
+            System.out.println("The input string is invalid.");
+            System.exit(0);
+        }
+        ptr = 0;
+        boolean isValid = E();
+        if((isValid) & (ptr == input.length)) {
+            System.out.println("The input string is valid.");
+        } else {
+            System.out.println("The input string is invalid.");
         }
     }
-    public void algorithm(){
-        stack.push(input.charAt(0)+"");
-        stack.push("G");
-        String token=read();
-        String top=null;
-        do{
-            top=stack.pop();
-            try{
-                if(this.nonTers.contains(top)){
-                    String rule=this.table[this.nonTers.indexOf(top)][this.terms.indexOf(token)];
-                    pushRule(rule);
-                }
-                else if(this.terms.contains(top)){
-                    if(!top.equals(token)){
-                        System.out.println("Error1");
-                        System.exit(0);
-                    }
-                    else{
-                        System.out.println("matching:"+token);
-                        token=read();
-                    }
-                }
-                else{
-                    System.out.println("Error2");
-                    System.exit(0);
-                }
-            }
-            catch (Exception e){
-                System.out.println("Error token:"+token);
-                System.exit(0);
-            }
-            if(token.equals("$")){
-                break;
-            }
-        }while (true);
-        if(token.equals("$")){
-            System.out.println("Accepted");
+
+    static boolean E() {
+        int fallback = ptr;
+        if(input[ptr++] != 'x') {
+            ptr = fallback;
+            return false;
         }
-        else{
-            System.out.println("Not Accepted");
+        if(input[ptr++] != '+') {
+            ptr = fallback;
+            return false;
         }
+        if(T() == false) {
+            ptr = fallback;
+            return false;
+        }
+        return true;
     }
-    String read(){
-        index++;
-        char ch=input.charAt(index);
-        String str=String.valueOf(ch);
-        return str;
-    }
-    public static void main(String args[]){
-    	RecDesParser l=new RecDesParser("a*a$");
-        l.algorithm();
+
+    static boolean T() {
+        int fallback = ptr;
+        if(input[ptr] == 'x') {
+            ptr++;
+            return true;
+        }
+        else {
+            if(input[ptr++] != '(') {
+                ptr = fallback;
+                return false;
+            }
+            if(E() == false) {
+                ptr = fallback;
+                return false;
+            }
+            if(input[ptr++] != ')') {
+                ptr = fallback;
+                return false;
+            }
+            return true;
+        }
     }
 }
