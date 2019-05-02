@@ -2,38 +2,43 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
-/*
- * 1  S->L=R
- * 2  S->R
- * 3  L->*R
- * 4  L->a
- * 5  R->L
- * */
+/*Grammar
+(1) S -> AA
+(2) A -> aA
+(3) A -> b
+*/
+/*LR(0) Parsing Table
+  | a   b      $    | S  A
+++++++++++++++++++++++++++
+ 0|s36 s47          | 1  2
+ 1|         accept  |
+ 2|s36 s47          |    5
+36|s36 s47          |   89
+47|r3  r3     r3    |
+ 5|           r1    |
+89|r2  r2     r2    |
+++++++++++++++++++++++++++
+*/
 public class LALRParser {
-    String table[][]= {{null,"s4","s5",null,"1","2","3"},
-            {null,null,null,"accepted",null,null,null},
-            {"s6",null,null,null,null,null,null},
-            {null,null,null,"r2",null,null,null},
-            {null,"s4","s5",null,null,"8","7"},
-            {"r4",null,null,null,null,null,null},
-            {null,"s11","s12",null,null,"10","9"},
-            {"r3",null,null,null,null,null,null},
-            {"r5",null,null,null,null,null,null},
-            {null,null,null,"r1",null,null,null},
-            {null,null,null,"r5",null,null,null},
-            {null,"s11","s12",null,null,"10","13"},
-            {null,null,null,"r4",null,null,null},
-            {null,null,null,"r3",null,null,null}};
+    String table[][] = {
+            {"s36","s47",null,"1","2"},
+            {null,null,"accepted",null,null},
+            {"s36","s47",null,null,"5"},
+            {"s36","s47",null,null,"89"},
+            {"r3","r3","r3",null,null},
+            {null,null,"r1",null,null},
+            {"r2","r2","r2",null,null},
+    };
     Stack<String> stack;
     String input;
     List<String> cols;
     List<String> rows;
     List<String> prods;
     List<String> vars;
-    String colls[]={"=","*","a","$","S","L","R"};
-    String rowws[]={"0","1","2","3","4","5","6","7","8","9","10","11","12","13"};
-    String prodds[]={"L=R","R","*R","a","L"};
-    String varrs[]= {"S","S","L","L","R"};
+    String colls[]={"a","b","$","S","A"};
+    String rowws[]={"0","1","2","36","47","5","89"};
+    String prodds[]={"AA","aA","b"};
+    String varrs[]= {"S","A","A"};
     public LALRParser(String input) {
         stack=new Stack<>();
         stack.push("$");
@@ -49,7 +54,7 @@ public class LALRParser {
         vars.addAll(Arrays.asList(varrs));
     }
     void addToStack(String str,String inp){
-        char ch=str.charAt(0);//r
+        char ch=str.charAt(0);
         int num=Integer.parseInt(str.substring(1,str.length()));//4
         switch (ch){
             case 's':
@@ -62,7 +67,8 @@ public class LALRParser {
                 for(int i=0;i<2*len;i++){
                     stack.pop();
                 }
-                int row=Integer.parseInt(stack.peek());
+                
+                int row=rows.indexOf(stack.peek());
                 int col=cols.indexOf(vars.get(num-1));
                 stack.push(vars.get(num-1));
                 stack.push(table[row][col]);
@@ -89,9 +95,9 @@ public class LALRParser {
         }
     }
     public static void main(String[] args) {
-    	String input="a!=a$";
+    	String input="abb$";
     	System.out.println("input string is: "+input);
-        LALRParser lParser=new LALRParser(input);//*a=a a=a
+        LALRParser lParser=new LALRParser(input);
         lParser.algorithm();
 
     }
