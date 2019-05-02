@@ -28,6 +28,9 @@ public class TAC_Optimization
 	}
 	public static void main(String args[]) throws Exception
 	{
+		Scanner sc=new Scanner(System.in);
+		System.out.print("Enter the maximum number of  expressions:");
+		n=sc.nextInt();
 		TAC_Optimization p=new TAC_Optimization();
 		p.input();
 		p.constant();
@@ -37,8 +40,6 @@ public class TAC_Optimization
 	public void input()
 	{
 		Scanner sc=new Scanner(System.in);
-		System.out.print("Enter the maximum number of  expressions:");
-		n=sc.nextInt();
 		System.out.println("enter "+n+" expressions as op op1 op2 res");
 		for(int i=0;i<n;i++) {
 			a[i].op=sc.next();
